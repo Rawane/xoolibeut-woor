@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormatSymbols;
 import java.time.LocalDate;
@@ -59,23 +60,34 @@ public class TaskArrangePhoto {
 			fileArrangeMonth.mkdir();
 		}
 		try {
-			Files.list(Paths.get(moArrangePhoto.getSource())).filter(path -> path.toFile().isFile()).forEach(path -> {
-				try {
-					Files.move(path,
-							Paths.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
-					// Files.delete(path);
-				} catch (FileAlreadyExistsException e) {
-					console.println("Fichier existe déja ");
+			Files.list(Paths.get(moArrangePhoto.getSource())).filter(
+					path -> path.toFile().isFile() && moArrangePhoto.getExtension().contains(getExtension(path)))
+					.forEach(path -> {
+						try {
+							Files.move(path, Paths
+									.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
+							// Files.delete(path);
+						} catch (FileAlreadyExistsException e) {
+							console.println("Fichier existe déja ");
 
-				} catch (IOException e) {
-					console.println("Fichier non transféré ");
-					e.printStackTrace();
-				}
-			});
+						} catch (IOException e) {
+							console.println("Fichier non transféré ");
+							e.printStackTrace();
+						}
+					});
 		} catch (IOException ioException) {
 			throw new RuntimeException("erreur traitement", ioException);
 		}
 
+	}
+
+	private String getExtension(Path path) {
+		String extension = "";
+		int i = path.toFile().getName().lastIndexOf('.');
+		if (i > 0) {
+			extension = path.toFile().getName().substring(i + 1);
+		}
+		return extension;
 	}
 
 	public static void main(String[] args) {

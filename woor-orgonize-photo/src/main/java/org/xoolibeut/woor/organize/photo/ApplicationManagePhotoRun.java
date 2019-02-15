@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -39,12 +40,16 @@ public class ApplicationManagePhotoRun {
 		try {
 
 			prop.load(ApplicationManagePhotoRun.class.getClassLoader().getResourceAsStream("application.properties"));
-			modelArrangePhoto.setSource(prop.getProperty("woor.photo.source"));
-			modelArrangePhoto.setDest(prop.getProperty("woor.photo.dest"));
-			modelArrangePhoto.setArrangeType(ArrangementType.valueOf(prop.getProperty("woor.photo.organization.type")));
+			modelArrangePhoto.setSource(prop.getProperty(KeyApplication.ORGANIZATION_SOURCE));
+			modelArrangePhoto.setDest(prop.getProperty(KeyApplication.ORGANIZATION_DEST));
+			modelArrangePhoto
+					.setArrangeType(ArrangementType.valueOf(prop.getProperty(KeyApplication.ORGANIZATION_TYPE)));
+			modelArrangePhoto
+					.setExtension(Arrays.asList(prop.getProperty(KeyApplication.ORGANIZATION_EXTENSION).split(";")));
 			applicationInfo.setViewLogConsole(
-					Boolean.parseBoolean(prop.getProperty("woor.photo.organization.applicatif.viewConsole")));
-			applicationInfo.setStartDate(prop.getProperty("woor.photo.organization.applicatif.startDate"));
+					Boolean.parseBoolean(prop.getProperty(KeyApplication.ORGANIZATION_APPLICATIF_VIEW_CONSOLE)));
+			applicationInfo.setStartDate(prop.getProperty(KeyApplication.ORGANIZATION_APPLICATIF_START_DATE));
+			applicationInfo.setApplicationLog(prop.getProperty(KeyApplication.ORGANIZATION_APPLICATIF_LOG));
 
 		} catch (IOException e) {
 			throw new RuntimeException("Erreur de chargement fichier", e);
