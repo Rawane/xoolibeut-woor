@@ -23,15 +23,14 @@ public class WindowsNetstatParsing implements NetstatParsing, ScannResultCommand
 
 	@Override
 	public List<TagInfo> retrieveAllInfostraffic() throws IOException, InterruptedException {
-
 		ExecutorCommand.execute(Sys.Win, "netstat -bf", this);
 		return tags;
 	}
-
+	
 	@Override
-	public List<TagInfo> retrieveListenningPort() throws IOException, InterruptedException {
-		ExecutorCommand.execute(Sys.Win, "netstat -bf", this);
-		return tags.stream().filter(tag -> NetworkKeysWindows.LISTENNING.equals(tag.getTypeConnection()))
+	public List<TagInfo> retrieveListeningPort() throws IOException, InterruptedException {
+		ExecutorCommand.execute(Sys.Win, "netstat -a | find \""+NetworkKeysWindows.LISTENING+"\"", this);
+		return tags.stream().filter(tag -> NetworkKeysWindows.LISTENING.equals(tag.getTypeConnection()))
 				.collect(Collectors.toList());
 
 	}

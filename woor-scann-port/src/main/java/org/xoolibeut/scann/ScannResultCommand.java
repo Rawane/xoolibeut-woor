@@ -14,8 +14,17 @@ public interface ScannResultCommand<E> {
 	 */
 	void doResult(InputStream inputStream);
 
+	/**
+	 * status de la commande.
+	 * 
+	 * @param code
+	 */
 	void setSatatus(int code);
 
+	/**
+	 * Afficher
+	 * @param inputStream
+	 */
 	static void showConsole(InputStream inputStream) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		reader.lines().forEach(System.out::println);

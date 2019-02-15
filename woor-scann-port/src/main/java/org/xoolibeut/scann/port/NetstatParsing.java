@@ -16,6 +16,6 @@ public interface NetstatParsing {
 	 * 
 	 * @return
 	 */
-	List<TagInfo> retrieveListenningPort() throws IOException, InterruptedException;
+	List<TagInfo> retrieveListeningPort() throws IOException, InterruptedException;
 
 }
