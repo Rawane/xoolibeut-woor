@@ -19,7 +19,8 @@ public class ApplicationManagePhotoRun {
 		System.out.println(" -----START ORGANISE PHOTO------------------");
 		Console = ConsoleLogger.getInstance(applicationInfo);
 		buildInfoFromProperties();
-		TaskArrangePhoto taskArrangePhoto = new TaskArrangePhoto(Console, modelArrangePhoto);
+		TraceInfo traceInfo = new TraceInfo();
+		TaskArrangePhoto taskArrangePhoto = new TaskArrangePhoto(Console, modelArrangePhoto, traceInfo);
 		LocalDateTime localNow = LocalDateTime.now();
 		DateTimeFormatter formatterDDAY = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String dayD = localNow.format(formatterDDAY);
@@ -30,7 +31,10 @@ public class ApplicationManagePhotoRun {
 		long initalDelay = duration.getSeconds();
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(() -> {
+			traceInfo.setDateDebutTrace(LocalDateTime.now().format(formatter));
 			taskArrangePhoto.arrangePhoto();
+			traceInfo.setDateFinTrace(LocalDateTime.now().format(formatter));
+			TraceLog.getInstance(applicationInfo).trace(traceInfo);
 		}, initalDelay, 20, TimeUnit.SECONDS);
 
 	}

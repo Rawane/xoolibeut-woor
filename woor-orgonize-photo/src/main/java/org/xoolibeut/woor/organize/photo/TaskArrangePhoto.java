@@ -8,14 +8,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormatSymbols;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskArrangePhoto {
 	private ConsoleLogger console;
 	private ModelArrangePhoto moArrangePhoto;
+	private TraceInfo traceInfo;
 
-	public TaskArrangePhoto(ConsoleLogger console, ModelArrangePhoto moArrangePhoto) {
+	public TaskArrangePhoto(ConsoleLogger console, ModelArrangePhoto moArrangePhoto,TraceInfo info) {
 		this.console = console;
 		this.moArrangePhoto = moArrangePhoto;
+		this.traceInfo=info;
 
 	}
 
@@ -45,40 +51,53 @@ public class TaskArrangePhoto {
 		LocalDate localDate = LocalDate.now();
 		int annee = localDate.getYear();
 		console.println("Année " + localDate.getYear());
-		File fileArrangeAnnee = Paths.get(moArrangePhoto.getDest() + File.separator + annee).toFile();
-
-		if (!fileArrangeAnnee.exists()) {
-			fileArrangeAnnee.mkdir();
-		}
 		int month = localDate.getMonthValue();
 		DateFormatSymbols dfs = new DateFormatSymbols();
 		String[] months = dfs.getMonths();
 		console.println("Mois " + months[month]);
-		File fileArrangeMonth = Paths
-				.get(moArrangePhoto.getDest() + File.separator + annee + File.separator + months[month]).toFile();
-		if (!fileArrangeMonth.exists()) {
-			fileArrangeMonth.mkdir();
-		}
-		try {
-			Files.list(Paths.get(moArrangePhoto.getSource())).filter(
-					path -> path.toFile().isFile() && moArrangePhoto.getExtension().contains(getExtension(path)))
-					.forEach(path -> {
-						try {
-							Files.move(path, Paths
-									.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
-							// Files.delete(path);
-						} catch (FileAlreadyExistsException e) {
-							console.println("Fichier existe déja ");
+		List<Path> pathsSource = determineListPathSource(Paths.get(moArrangePhoto.getSource()));
+		AtomicInteger nbPhotos=new AtomicInteger(0);
+		AtomicInteger nbEchecs=new AtomicInteger(0);
+		pathsSource.forEach(pathSource -> {
+			console.println("Source "+pathSource);
+			traceInfo.getSources().add(pathSource.toFile().getAbsolutePath());
+			String pathComplement=pathSource.toFile().getAbsolutePath().substring(Paths.get(moArrangePhoto.getSource()).toFile().getAbsolutePath().length());
+			File fileArrangeAnnee = Paths.get(moArrangePhoto.getDest()+pathComplement + File.separator + annee).toFile();
+			if (!fileArrangeAnnee.exists()) {
+				fileArrangeAnnee.mkdir();
+			}
+			File fileArrangeMonth = Paths
+					.get(moArrangePhoto.getDest() +pathComplement+ File.separator + annee + File.separator + months[month]).toFile();
+			if (!fileArrangeMonth.exists()) {
+				fileArrangeMonth.mkdir();
+			}
+			try {
 
-						} catch (IOException e) {
-							console.println("Fichier non transféré ");
-							e.printStackTrace();
-						}
-					});
-		} catch (IOException ioException) {
-			throw new RuntimeException("erreur traitement", ioException);
-		}
+				Files.list(pathSource).filter(
+						path -> path.toFile().isFile() && moArrangePhoto.getExtension().contains(getExtension(path)))
+						.forEach(path -> {
+							try {
+								Files.move(path, Paths
+										.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
+								nbPhotos.incrementAndGet();
+								// Files.delete(path);
+							} catch (FileAlreadyExistsException e) {
+								console.println("Fichier existe déja ");
+								nbEchecs.incrementAndGet();
 
+							} catch (IOException e) {
+								console.println("Fichier non transféré ");
+								e.printStackTrace();
+							}
+						});
+
+			} catch (IOException ioException) {
+				throw new RuntimeException("erreur traitement", ioException);
+			}
+		});
+		traceInfo.setSizePhoto(nbPhotos.get());
+		traceInfo.setSizePhotoFail(nbEchecs.get());
+		traceInfo.setSizePhotoSucces(nbPhotos.get()-nbEchecs.get());
 	}
 
 	private String getExtension(Path path) {
@@ -90,11 +109,52 @@ public class TaskArrangePhoto {
 		return extension;
 	}
 
-	public static void main(String[] args) {
-		LocalDate localDate = LocalDate.now();
-		int month = localDate.getMonthValue();
+	private boolean fileNotInMonthAndYear(Path path) {
 		DateFormatSymbols dfs = new DateFormatSymbols();
 		String[] months = dfs.getMonths();
-		System.out.println(months[month]);
+		List<String> listMonths = new ArrayList<>(Arrays.asList(months));
+		LocalDate localDate = LocalDate.now();
+		int annee = localDate.getYear();
+		listMonths.add(String.valueOf(annee));
+		return listMonths.contains(path.toFile().getName());
+
+	}
+
+	private List<Path> determineListPathSource(Path pa) {
+		List<Path> paths = new ArrayList<>();
+		try {
+			if (Files.list(pa).count() == 0) {
+				if (paths.isEmpty()) {
+					paths.add(pa);
+				}
+				return paths;
+			}
+			if (fileNotInMonthAndYear(pa)) {
+				paths.add(pa.getParent());
+				return paths;
+			}
+			if (Files.list(pa).anyMatch(path -> moArrangePhoto.getExtension().contains(getExtension(path)))) {
+
+				paths.add(pa);
+
+			} else {
+				Files.list(pa).forEach(path -> paths.addAll(determineListPathSource(path)));
+			}
+		} catch (IOException e) {
+
+		}
+		return paths;
+	}
+
+	public static void main(String[] args) {
+		String pathParent = Paths.get("D:\\devs\\perso\\test").toFile().getAbsolutePath();
+		String path = Paths.get("D:\\devs\\perso\\test").toFile().getAbsolutePath();
+		System.out.println(path.substring(pathParent.length()));
+		ApplicationInfo applicationInfo = new ApplicationInfo();
+		ModelArrangePhoto moArrangePhoto = new ModelArrangePhoto();
+		moArrangePhoto.setExtension(Arrays.asList("jpg"));
+		TaskArrangePhoto task = new TaskArrangePhoto(ConsoleLogger.getInstance(applicationInfo), moArrangePhoto,new TraceInfo());
+		List<Path> paths = task.determineListPathSource(Paths.get("D:\\devs\\perso\\test"));
+		paths.forEach(System.out::println);
 	}
 }
