@@ -76,10 +76,10 @@ public class TaskArrangePhoto {
 				Files.list(pathSource).filter(
 						path -> path.toFile().isFile() && moArrangePhoto.getExtension().contains(getExtension(path)))
 						.forEach(path -> {
-							try {
+							try {nbPhotos.incrementAndGet();
 								Files.move(path, Paths
 										.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
-								nbPhotos.incrementAndGet();
+								
 								// Files.delete(path);
 							} catch (FileAlreadyExistsException e) {
 								console.println("Fichier existe déja ");

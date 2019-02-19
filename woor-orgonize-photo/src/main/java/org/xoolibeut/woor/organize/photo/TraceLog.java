@@ -8,14 +8,16 @@ import java.nio.file.StandardOpenOption;
 
 public class TraceLog {
 	private ApplicationInfo applicationInfo;
+	private ConsoleLogger consoleLogger;
 	private static TraceLog traceLog = new TraceLog();
 
 	private TraceLog() {
 
 	}
 
-	public static TraceLog getInstance(ApplicationInfo applicationInfo) {
+	public static TraceLog getInstance(ApplicationInfo applicationInfo, ConsoleLogger consoleLogger) {
 		traceLog.applicationInfo = applicationInfo;
+		traceLog.consoleLogger = consoleLogger;
 		return traceLog;
 
 	}
@@ -28,7 +30,8 @@ public class TraceLog {
 
 			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(applicationInfo.getApplicationLog()),
 					StandardOpenOption.APPEND)) {
-				writer.write(traceInfo.toString());
+				writer.write(traceInfo.toString() + "\n");
+				consoleLogger.println(traceInfo.toString());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

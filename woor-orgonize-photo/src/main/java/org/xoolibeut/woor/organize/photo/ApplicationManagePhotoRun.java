@@ -34,7 +34,7 @@ public class ApplicationManagePhotoRun {
 			traceInfo.setDateDebutTrace(LocalDateTime.now().format(formatter));
 			taskArrangePhoto.arrangePhoto();
 			traceInfo.setDateFinTrace(LocalDateTime.now().format(formatter));
-			TraceLog.getInstance(applicationInfo).trace(traceInfo);
+			TraceLog.getInstance(applicationInfo,Console).trace(traceInfo);
 		}, initalDelay, 20, TimeUnit.SECONDS);
 
 	}
