@@ -1,6 +1,6 @@
 package org.xoolibeut.woor.organize.photo;
 
-public class ConsoleLogger {
+public class ConsoleLogger implements ConsoleLoggerSpec{
 	private ApplicationInfo applicationInfo;
 	private static ConsoleLogger consoleLogger = new ConsoleLogger();
 

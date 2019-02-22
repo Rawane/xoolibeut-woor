@@ -1,12 +1,21 @@
-package org.xoolibeut.woor.organize.photo;
+package org.xoolibeut.woor.organize.photo.spring;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.xoolibeut.woor.organize.photo.ArrangementType;
+import org.xoolibeut.woor.organize.photo.ModelArrangePhotoSpec;
+@Component
 public class ModelArrangePhoto implements ModelArrangePhotoSpec {
+	@Value("${woor.photo.organization.source}")
 	private String source;
+	@Value("${woor.photo.organization.dest}")
 	private String dest;
+	@Value("${woor.photo.organization.type}")
 	private ArrangementType arrangeType;
+	@Value("#{'${woor.photo.organization.extension}'.split(',')}")
 	private List<String> extension = new ArrayList<>();
 
 	public String getSource() {

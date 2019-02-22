@@ -32,9 +32,12 @@ public class ApplicationManagePhotoRun {
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(() -> {
 			traceInfo.setDateDebutTrace(LocalDateTime.now().format(formatter));
-			taskArrangePhoto.arrangePhoto();
+			TaskArrangeFunctionnal arrangeFunctionnal = (path) -> {
+				Console.println(path.toString());
+			};
+			taskArrangePhoto.arrangePhoto(arrangeFunctionnal);
 			traceInfo.setDateFinTrace(LocalDateTime.now().format(formatter));
-			TraceLog.getInstance(applicationInfo,Console).trace(traceInfo);
+			TraceLog.getInstance(applicationInfo, Console).trace(traceInfo);
 		}, initalDelay, 20, TimeUnit.SECONDS);
 
 	}

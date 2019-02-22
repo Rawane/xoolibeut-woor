@@ -14,18 +14,18 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskArrangePhoto {
-	private ConsoleLogger console;
-	private ModelArrangePhoto moArrangePhoto;
-	private TraceInfo traceInfo;
+	private ConsoleLoggerSpec console;
+	private ModelArrangePhotoSpec moArrangePhoto;
+	private TraceInfoSpec traceInfo;
 
-	public TaskArrangePhoto(ConsoleLogger console, ModelArrangePhoto moArrangePhoto,TraceInfo info) {
+	public TaskArrangePhoto(ConsoleLoggerSpec console, ModelArrangePhotoSpec moArrangePhoto, TraceInfoSpec info) {
 		this.console = console;
 		this.moArrangePhoto = moArrangePhoto;
-		this.traceInfo=info;
+		this.traceInfo = info;
 
 	}
 
-	public void arrangePhoto() {
+	public void arrangePhoto(TaskArrangeFunctionnal arrangeFunctionnal) {
 		if (!Paths.get(moArrangePhoto.getSource()).toFile().exists()) {
 			throw new RuntimeException("Le répertoire source " + moArrangePhoto.getSource() + " n'existe pas ");
 		}
@@ -37,7 +37,7 @@ public class TaskArrangePhoto {
 
 			break;
 		case MONTH:
-			arrangePhotoMonth();
+			arrangePhotoMonth(arrangeFunctionnal);
 			break;
 		case DAY:
 
@@ -47,7 +47,7 @@ public class TaskArrangePhoto {
 		}
 	}
 
-	private void arrangePhotoMonth() {
+	private void arrangePhotoMonth(TaskArrangeFunctionnal arrangeFunctionnal) {
 		LocalDate localDate = LocalDate.now();
 		int annee = localDate.getYear();
 		console.println("Année " + localDate.getYear());
@@ -56,18 +56,21 @@ public class TaskArrangePhoto {
 		String[] months = dfs.getMonths();
 		console.println("Mois " + months[month]);
 		List<Path> pathsSource = determineListPathSource(Paths.get(moArrangePhoto.getSource()));
-		AtomicInteger nbPhotos=new AtomicInteger(0);
-		AtomicInteger nbEchecs=new AtomicInteger(0);
+		AtomicInteger nbPhotos = new AtomicInteger(0);
+		AtomicInteger nbEchecs = new AtomicInteger(0);
 		pathsSource.forEach(pathSource -> {
-			console.println("Source "+pathSource);
+			console.println("Source " + pathSource);
 			traceInfo.getSources().add(pathSource.toFile().getAbsolutePath());
-			String pathComplement=pathSource.toFile().getAbsolutePath().substring(Paths.get(moArrangePhoto.getSource()).toFile().getAbsolutePath().length());
-			File fileArrangeAnnee = Paths.get(moArrangePhoto.getDest()+pathComplement + File.separator + annee).toFile();
+			String pathComplement = pathSource.toFile().getAbsolutePath()
+					.substring(Paths.get(moArrangePhoto.getSource()).toFile().getAbsolutePath().length());
+			File fileArrangeAnnee = Paths.get(moArrangePhoto.getDest() + pathComplement + File.separator + annee)
+					.toFile();
 			if (!fileArrangeAnnee.exists()) {
 				fileArrangeAnnee.mkdir();
 			}
-			File fileArrangeMonth = Paths
-					.get(moArrangePhoto.getDest() +pathComplement+ File.separator + annee + File.separator + months[month]).toFile();
+			File fileArrangeMonth = Paths.get(
+					moArrangePhoto.getDest() + pathComplement + File.separator + annee + File.separator + months[month])
+					.toFile();
 			if (!fileArrangeMonth.exists()) {
 				fileArrangeMonth.mkdir();
 			}
@@ -76,10 +79,12 @@ public class TaskArrangePhoto {
 				Files.list(pathSource).filter(
 						path -> path.toFile().isFile() && moArrangePhoto.getExtension().contains(getExtension(path)))
 						.forEach(path -> {
-							try {nbPhotos.incrementAndGet();
+							try {
+								nbPhotos.incrementAndGet();
 								Files.move(path, Paths
 										.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
-								
+								arrangeFunctionnal.doAfterMoveFile(Paths
+										.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
 								// Files.delete(path);
 							} catch (FileAlreadyExistsException e) {
 								console.println("Fichier existe déja ");
@@ -97,7 +102,7 @@ public class TaskArrangePhoto {
 		});
 		traceInfo.setSizePhoto(nbPhotos.get());
 		traceInfo.setSizePhotoFail(nbEchecs.get());
-		traceInfo.setSizePhotoSucces(nbPhotos.get()-nbEchecs.get());
+		traceInfo.setSizePhotoSucces(nbPhotos.get() - nbEchecs.get());
 	}
 
 	private String getExtension(Path path) {
@@ -153,7 +158,8 @@ public class TaskArrangePhoto {
 		ApplicationInfo applicationInfo = new ApplicationInfo();
 		ModelArrangePhoto moArrangePhoto = new ModelArrangePhoto();
 		moArrangePhoto.setExtension(Arrays.asList("jpg"));
-		TaskArrangePhoto task = new TaskArrangePhoto(ConsoleLogger.getInstance(applicationInfo), moArrangePhoto,new TraceInfo());
+		TaskArrangePhoto task = new TaskArrangePhoto(ConsoleLogger.getInstance(applicationInfo), moArrangePhoto,
+				new TraceInfo());
 		List<Path> paths = task.determineListPathSource(Paths.get("D:\\devs\\perso\\test"));
 		paths.forEach(System.out::println);
 	}
