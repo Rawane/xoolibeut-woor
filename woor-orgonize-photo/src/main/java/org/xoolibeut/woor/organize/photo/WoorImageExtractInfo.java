@@ -2,6 +2,8 @@ package org.xoolibeut.woor.organize.photo;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.sanselan.ImageReadException;
@@ -30,6 +32,14 @@ public class WoorImageExtractInfo {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("-----------------------------------PARSE DATE-------------------------------------------");
+		String dateP = "'2019:02:12 12:45:11'";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("''yyyy:MM:dd HH:mm:ss''");
+		System.out.println("date format ");
+		System.out.println(dateP);
+		System.out.println(LocalDateTime.parse(dateP, formatter).format(DateTimeFormatter.ofPattern("yyyy:MM:dd")));
+		System.out.println("------------------------");
+	//	LocalDateTime.parse("2019:02:12 12:45:11", formatter);
 	}
 
 	public static void readAndDisplayMetadata(final File file) throws ImageReadException, IOException {
@@ -91,14 +101,15 @@ public class WoorImageExtractInfo {
 					&& gpsLongitudeField != null) {
 				// all of these values are strings.
 				final String gpsLatitudeRef = (String) gpsLatitudeRefField.getValue();
-				
-				//final RationalNumber gpsLatitude[] = (RationalNumber[]) (gpsLatitudeField.getValue());
+
+				// final RationalNumber gpsLatitude[] = (RationalNumber[])
+				// (gpsLatitudeField.getValue());
 				final String gpsLongitudeRef = (String) gpsLongitudeRefField.getValue();
 				final RationalNumber gpsLongitude[] = (RationalNumber[]) gpsLongitudeField.getValue();
 
-				//final RationalNumber gpsLatitudeDegrees = gpsLatitude[0];
-				//final RationalNumber gpsLatitudeMinutes = gpsLatitude[1];
-				//final RationalNumber gpsLatitudeSeconds = gpsLatitude[2];
+				// final RationalNumber gpsLatitudeDegrees = gpsLatitude[0];
+				// final RationalNumber gpsLatitudeMinutes = gpsLatitude[1];
+				// final RationalNumber gpsLatitudeSeconds = gpsLatitude[2];
 
 				final RationalNumber gpsLongitudeDegrees = gpsLongitude[0];
 				final RationalNumber gpsLongitudeMinutes = gpsLongitude[1];
@@ -109,12 +120,16 @@ public class WoorImageExtractInfo {
 				// gpsLatitude: 8 degrees, 40 minutes, 42.2 seconds S
 				// gpsLongitude: 115 degrees, 26 minutes, 21.8 seconds E
 
-//				System.out.println("    " + "GPS Latitude: " + gpsLatitudeDegrees.toDisplayString() + " degrees, "
-//						+ gpsLatitudeMinutes.toDisplayString() + " minutes, " + gpsLatitudeSeconds.toDisplayString()
-//						+ " seconds " + gpsLatitudeRef);
-//				System.out.println("    " + "GPS Longitude: " + gpsLongitudeDegrees.toDisplayString() + " degrees, "
-//						+ gpsLongitudeMinutes.toDisplayString() + " minutes, " + gpsLongitudeSeconds.toDisplayString()
-//						+ " seconds " + gpsLongitudeRef);
+				// System.out.println(" " + "GPS Latitude: " +
+				// gpsLatitudeDegrees.toDisplayString() + " degrees, "
+				// + gpsLatitudeMinutes.toDisplayString() + " minutes, " +
+				// gpsLatitudeSeconds.toDisplayString()
+				// + " seconds " + gpsLatitudeRef);
+				// System.out.println(" " + "GPS Longitude: " +
+				// gpsLongitudeDegrees.toDisplayString() + " degrees, "
+				// + gpsLongitudeMinutes.toDisplayString() + " minutes, " +
+				// gpsLongitudeSeconds.toDisplayString()
+				// + " seconds " + gpsLongitudeRef);
 
 			}
 
@@ -138,5 +153,26 @@ public class WoorImageExtractInfo {
 		} else {
 			System.out.println(tagInfo.name + ": " + field.getValueDescription());
 		}
+	}
+
+	public static LocalDateTime readAndDisplayDateMetadata(final File file) throws ImageReadException, IOException {
+		// get all metadata stored in EXIF format (ie. from JPEG or TIFF).
+
+		IImageMetadata metadata = Sanselan.getMetadata(file);
+		if (metadata instanceof JpegImageMetadata) {
+			JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+			String datePrise = getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("''yyyy:MM:dd HH:mm:ss''");			
+			return LocalDateTime.parse(datePrise, formatter);
+		}
+		return null;
+	}
+
+	private static String getTagValue(final JpegImageMetadata jpegMetadata, final TagInfo tagInfo) {
+		TiffField field = jpegMetadata.findEXIFValue(tagInfo);
+		if (field == null) {
+			return null;
+		}
+		return field.getValueDescription();
 	}
 }

@@ -18,10 +18,10 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.xoolibeut.woor.organize.photo.spring.repository")
 public class ConfigEleasticSearch {
-	@Value("${elasticsearch.home:D:\\devs\\perso\\elastic_search}")
+	@Value("${elasticsearch.home:D:\\devs\\elasticsearch-6.6.1\\data}")
     private String elasticsearchHome;
  
-    @Value("${elasticsearch.cluster.name:elasticsearch}")
+    @Value("${elasticsearch.cluster.name:woor-elasticsearch}")
     private String clusterName;
  
     @Bean

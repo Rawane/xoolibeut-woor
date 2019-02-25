@@ -2,6 +2,8 @@ package org.xoolibeut.woor.organize.photo.spring;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
@@ -23,7 +25,9 @@ public class WoorImageExtractInfo {
 		IImageMetadata metadata = Sanselan.getMetadata(file);
 		if (metadata instanceof JpegImageMetadata) {
 			JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
-			tagInfoPhoto.setDatePrise(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME));
+			String datePrise = getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME);
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("''yyyy:MM:dd HH:mm:ss''");
+			tagInfoPhoto.setDatePrise(LocalDateTime.parse(datePrise, formatter));
 			tagInfoPhoto.setMarqueAppareil(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE));
 			tagInfoPhoto.setModel(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MODEL));
 			// simple interface to GPS data

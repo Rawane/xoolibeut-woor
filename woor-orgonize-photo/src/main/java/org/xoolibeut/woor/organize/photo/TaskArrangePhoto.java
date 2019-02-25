@@ -8,10 +8,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormatSymbols;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.sanselan.ImageReadException;
 
 public class TaskArrangePhoto {
 	private ConsoleLoggerSpec console;
@@ -61,19 +64,7 @@ public class TaskArrangePhoto {
 		pathsSource.forEach(pathSource -> {
 			console.println("Source " + pathSource);
 			traceInfo.getSources().add(pathSource.toFile().getAbsolutePath());
-			String pathComplement = pathSource.toFile().getAbsolutePath()
-					.substring(Paths.get(moArrangePhoto.getSource()).toFile().getAbsolutePath().length());
-			File fileArrangeAnnee = Paths.get(moArrangePhoto.getDest() + pathComplement + File.separator + annee)
-					.toFile();
-			if (!fileArrangeAnnee.exists()) {
-				fileArrangeAnnee.mkdir();
-			}
-			File fileArrangeMonth = Paths.get(
-					moArrangePhoto.getDest() + pathComplement + File.separator + annee + File.separator + months[month])
-					.toFile();
-			if (!fileArrangeMonth.exists()) {
-				fileArrangeMonth.mkdir();
-			}
+
 			try {
 
 				Files.list(pathSource).filter(
@@ -81,6 +72,26 @@ public class TaskArrangePhoto {
 						.forEach(path -> {
 							try {
 								nbPhotos.incrementAndGet();
+								int annePh=annee;
+								int monthPh=month;
+								String pathComplement = pathSource.toFile().getAbsolutePath().substring(
+										Paths.get(moArrangePhoto.getSource()).toFile().getAbsolutePath().length());
+								LocalDateTime datePrise = WoorImageExtractInfo.readAndDisplayDateMetadata(path.toFile());
+								if(	datePrise!=null) {
+									annePh=datePrise.getYear();
+									monthPh=datePrise.getMonthValue();
+								}
+								File fileArrangeAnnee = Paths
+										.get(moArrangePhoto.getDest() + pathComplement + File.separator + annePh)
+										.toFile();
+								if (!fileArrangeAnnee.exists()) {
+									fileArrangeAnnee.mkdir();
+								}
+								File fileArrangeMonth = Paths.get(moArrangePhoto.getDest() + pathComplement
+										+ File.separator + annee + File.separator + months[monthPh-1]).toFile();
+								if (!fileArrangeMonth.exists()) {
+									fileArrangeMonth.mkdir();
+								}
 								Files.move(path, Paths
 										.get(fileArrangeMonth.getAbsolutePath() + File.separator + path.getFileName()));
 								arrangeFunctionnal.doAfterMoveFile(Paths
@@ -92,6 +103,8 @@ public class TaskArrangePhoto {
 
 							} catch (IOException e) {
 								console.println("Fichier non transféré ");
+								e.printStackTrace();
+							} catch (ImageReadException e) {
 								e.printStackTrace();
 							}
 						});
