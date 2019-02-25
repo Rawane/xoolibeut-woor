@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.xoolibeut.woor.organize.photo.ApplicationInfo;
 import org.xoolibeut.woor.organize.photo.ConsoleLogger;
-
 import org.xoolibeut.woor.organize.photo.TaskArrangePhoto;
 import org.xoolibeut.woor.organize.photo.TraceInfo;
 
@@ -42,7 +41,7 @@ public class ScheduledTasks {
 	 * LOGGER.info("The time is now {}", dateFormat.format(new Date())); }
 	 */
 
-	@Scheduled(cron = "59 42 11 * * *")
+	@Scheduled(cron = "${woor.photo.organization.applicatif.startDate}")
 	public void movePhoto() {
 		LOGGER.info("CRON", dateFormat.format(new Date()));
 		taskArrangePhoto.arrangePhoto((path) -> {
