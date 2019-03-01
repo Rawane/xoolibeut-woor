@@ -19,29 +19,28 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @EnableElasticsearchRepositories(basePackages = "org.xoolibeut.woor.organize.photo.spring.repository")
 public class ConfigEleasticSearch {
 	@Value("${elasticsearch.home:D:\\devs\\elasticsearch-6.6.1\\data}")
-    private String elasticsearchHome;
- 
-    @Value("${elasticsearch.cluster.name:woor-elasticsearch}")
-    private String clusterName;
- 
-    @Bean
-    public Client client() {
-        Settings elasticsearchSettings = Settings.builder()
-          .put("client.transport.sniff", true)
-          .put("path.home", elasticsearchHome)
-          .put("cluster.name", clusterName).build();
-        TransportClient client = new PreBuiltTransportClient(elasticsearchSettings);
-        try {
+	private String elasticsearchHome;
+
+	@Value("${elasticsearch.cluster.name:woor-elasticsearch}")
+	private String clusterName;
+
+	@Bean
+	public Client client() {
+		Settings elasticsearchSettings = Settings.builder().put("client.transport.sniff", true)
+				.put("path.home", elasticsearchHome).put("cluster.name", clusterName).build();
+		TransportClient client = new PreBuiltTransportClient(elasticsearchSettings);
+		try {
 			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return client;
-    }
- 
-    @Bean
-    public ElasticsearchOperations elasticsearchTemplate() {
-        return new ElasticsearchTemplate(client());
-    }
+		return client;
+	}
+
+	@Bean
+	public ElasticsearchOperations elasticsearchTemplate() {
+		return new ElasticsearchTemplate(client(), new CustomEntityMapper());
+	}
+
 }

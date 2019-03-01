@@ -5,8 +5,11 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * 
@@ -15,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Document(createIndex = true, indexName = "photo", type = "tagInfo")
 public class TagInfoPhoto {
+	@JsonFormat(pattern = "yyyy:MM:dd HH:mm:ss")
 	private LocalDateTime datePrise;
 	private String marqueAppareil;
 	private String model;
@@ -82,4 +86,21 @@ public class TagInfoPhoto {
 		this.datePrise = datePrise;
 	}
 
+	public static void main(String[] args) {
+		ObjectMapper mapper = new ObjectMapper();
+
+		JavaTimeModule timeModule = new JavaTimeModule();
+		mapper.registerModule(timeModule);
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+		TagInfoPhoto tagInfoPhoto = new TagInfoPhoto();
+
+		try {
+			tagInfoPhoto.setDatePrise(LocalDateTime.now());
+			System.out.println(mapper.writeValueAsString(tagInfoPhoto));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

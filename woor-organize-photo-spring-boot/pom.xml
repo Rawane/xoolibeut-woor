@@ -10,11 +10,11 @@
 		<version>2.0.5.RELEASE</version>
 	</parent>
 
-	<properties>
+	<properties> 
 		<java.version>1.8</java.version>
 	</properties>
 
-	<dependencies>		
+	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -30,18 +30,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-elasticsearch</artifactId>			
+			<artifactId>spring-data-elasticsearch</artifactId>
 		</dependency>
 		<dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>transport</artifactId>
-       
-    </dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
 
-    <dependency>
-        <groupId>org.elasticsearch.plugin</groupId>
-        <artifactId>transport-netty4-client</artifactId>      
-    </dependency>
+		</dependency>
+
+		<dependency>
+			<groupId>org.elasticsearch.plugin</groupId>
+			<artifactId>transport-netty4-client</artifactId>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

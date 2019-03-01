@@ -1,6 +1,7 @@
 package org.xoolibeut.woor.organize.photo.spring.controller;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +23,9 @@ import org.xoolibeut.woor.organize.photo.spring.TagInfoPhoto;
 import org.xoolibeut.woor.organize.photo.spring.WoorIndexerPhoto;
 import org.xoolibeut.woor.organize.photo.spring.service.PhotoService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 public class WoorPhotoRestController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WoorPhotoRestController.class);
@@ -33,7 +37,8 @@ public class WoorPhotoRestController {
 	private WoorIndexerPhoto woorIndexerPhoto;
 	@Autowired
 	private PhotoService photoService;
-
+	@Autowired
+private ObjectMapper mapper;
 	@PostConstruct
 	private void init() {
 		ApplicationInfo applicationInfo = new ApplicationInfo();
@@ -46,7 +51,14 @@ public class WoorPhotoRestController {
 
 	@RequestMapping(value = "/start", method = RequestMethod.GET)
 	public String demarreIndexation() {
-
+		TagInfoPhoto tagInfoPhoto = new TagInfoPhoto();
+		tagInfoPhoto.setDatePrise(LocalDateTime.now());
+		try {
+			System.out.println(mapper.writeValueAsString(tagInfoPhoto));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		LOGGER.info("CRON", dateFormat.format(new Date()));
 		taskArrangePhoto.arrangePhoto((path) -> {
 			LOGGER.info(path.toString());

@@ -7,12 +7,22 @@ import org.springframework.stereotype.Service;
 import org.xoolibeut.woor.organize.photo.spring.TagInfoPhoto;
 import org.xoolibeut.woor.organize.photo.spring.repository.PhotoRepository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class PhotoService {
 	@Autowired
 	private PhotoRepository photoRepository;
-
+	@Autowired
+	private ObjectMapper mapper;
 	public void savePhoto(TagInfoPhoto photo) {
+		try {
+			System.out.println(mapper.writeValueAsString(photo));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		photoRepository.save(photo);
 	}
 
