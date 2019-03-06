@@ -2,6 +2,8 @@ package org.xoolibeut.woor.organize.photo.spring;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -26,8 +28,12 @@ public class WoorImageExtractInfo {
 		if (metadata instanceof JpegImageMetadata) {
 			JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
 			String datePrise = getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME);
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("''yyyy:MM:dd HH:mm:ss''");
-			tagInfoPhoto.setDatePrise(LocalDateTime.parse(datePrise, formatter));
+			SimpleDateFormat formatter =new SimpleDateFormat("''yyyy:MM:dd HH:mm:ss''");
+			try {
+				tagInfoPhoto.setDatePrise(formatter.parse(datePrise));
+			} catch (ParseException e) {				
+				e.printStackTrace();
+			}
 			tagInfoPhoto.setMarqueAppareil(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE));
 			tagInfoPhoto.setModel(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MODEL));
 			// simple interface to GPS data

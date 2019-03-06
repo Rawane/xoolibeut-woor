@@ -1,5 +1,10 @@
 package org.xoolibeut.woor.organize.photo.spring.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -7,32 +12,52 @@ import org.springframework.stereotype.Service;
 import org.xoolibeut.woor.organize.photo.spring.TagInfoPhoto;
 import org.xoolibeut.woor.organize.photo.spring.repository.PhotoRepository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Service
 public class PhotoService {
 	@Autowired
 	private PhotoRepository photoRepository;
-	@Autowired
-	private ObjectMapper mapper;
+
 	public void savePhoto(TagInfoPhoto photo) {
-		try {
-			System.out.println(mapper.writeValueAsString(photo));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		photoRepository.save(photo);
 	}
 
-	public Page<TagInfoPhoto> findBymarqueAppareil(String marque) {
-		Page<TagInfoPhoto> pagePhoto = photoRepository.findBymarqueAppareil(marque, PageRequest.of(0, 10));
+	public Page<TagInfoPhoto> findByMarqueAppareil(String marque, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByMarqueAppareil(marque, PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}
 
-	public Page<TagInfoPhoto> findAll() {
-		Page<TagInfoPhoto> pagePhoto = photoRepository.findAll(PageRequest.of(0, 10));
+	public Page<TagInfoPhoto> findAll(int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findAll(PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}
+
+	public Page<TagInfoPhoto> findByDatePriseBetween(Date dateStart, Date dateEnd, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByDatePriseBetween(dateStart, dateEnd,
+				PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}
+
+	public Page<TagInfoPhoto> findByDatePriseBetween2(Date dateStart, Date dateEnd, int pageStart, int pageEnd) {
+		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
+				.must(QueryBuilders.rangeQuery("datePrise").gte(dateFormat.format(dateStart)).lte(dateFormat.format(dateEnd)));
+		Page<TagInfoPhoto> pagePhoto = photoRepository.search(queryBuilder, PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}
+
+	public Page<TagInfoPhoto> findByDatePrise(Date datePrise, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByDatePrise(datePrise, PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}
+
+	public Page<TagInfoPhoto> findByPathContaining(String path, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByPathContaining(path, PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}
+
+	public Page<TagInfoPhoto> findByDatePriseContaining(Date datePrise, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByDatePriseContaining(datePrise,
+				PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}
 }
