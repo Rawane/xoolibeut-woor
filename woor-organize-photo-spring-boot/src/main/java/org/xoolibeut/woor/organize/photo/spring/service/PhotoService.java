@@ -3,6 +3,7 @@ package org.xoolibeut.woor.organize.photo.spring.service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +33,9 @@ public class PhotoService {
 	}
 
 	public Page<TagInfoPhoto> findByDatePriseBetween(Date dateStart, Date dateEnd, int pageStart, int pageEnd) {
-		Page<TagInfoPhoto> pagePhoto = photoRepository.findByDatePriseBetween(dateStart, dateEnd,
-				PageRequest.of(pageStart, pageEnd));
-		return pagePhoto;
-	}
-
-	public Page<TagInfoPhoto> findByDatePriseBetween2(Date dateStart, Date dateEnd, int pageStart, int pageEnd) {
-		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.must(QueryBuilders.rangeQuery("datePrise").gte(dateFormat.format(dateStart)).lte(dateFormat.format(dateEnd)));
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+		QueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.rangeQuery("datePrise")
+				.gte(dateFormat.format(dateStart)).lte(dateFormat.format(dateEnd)));
 		Page<TagInfoPhoto> pagePhoto = photoRepository.search(queryBuilder, PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}
@@ -55,9 +50,11 @@ public class PhotoService {
 		return pagePhoto;
 	}
 
-	public Page<TagInfoPhoto> findByDatePriseContaining(Date datePrise, int pageStart, int pageEnd) {
-		Page<TagInfoPhoto> pagePhoto = photoRepository.findByDatePriseContaining(datePrise,
-				PageRequest.of(pageStart, pageEnd));
+	public Page<TagInfoPhoto> searchMultiple(String search, int pageStart, int pageEnd) {
+		QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(search).field("path").field("marqueAppareil")
+				.field("model").type(MultiMatchQueryBuilder.Type.BEST_FIELDS);
+		Page<TagInfoPhoto> pagePhoto = photoRepository.search(queryBuilder, PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}
+
 }

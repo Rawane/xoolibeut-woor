@@ -29,6 +29,7 @@ public class TagInfoPhoto {
 	private String model;
 	private Double latitude;
 	private Double longitude;
+	private String from;
 	@Id
 	private String path;
 
@@ -93,7 +94,7 @@ public class TagInfoPhoto {
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 		TagInfoPhoto tagInfoPhoto = new TagInfoPhoto();
-
+	
 		try {
 			tagInfoPhoto.setDatePrise(new Date());
 			String dateString = mapper.writeValueAsString(tagInfoPhoto);
@@ -112,5 +113,13 @@ public class TagInfoPhoto {
 
 	public void setDatePrise(Date datePrise) {
 		this.datePrise = datePrise;
+	}
+
+	public String getFrom() {
+		return from;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
 	}
 }

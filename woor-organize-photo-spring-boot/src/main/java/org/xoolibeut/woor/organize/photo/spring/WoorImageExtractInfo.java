@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
@@ -15,12 +13,16 @@ import org.apache.sanselan.formats.tiff.TiffField;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.tiff.constants.TagInfo;
 import org.apache.sanselan.formats.tiff.constants.TiffTagConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.xoolibeut.woor.organize.photo.spring.config.ConfigApplicatif;
 
 @Component
 public class WoorImageExtractInfo {
-
+	@Autowired
+	private ConfigApplicatif configApplicatif;
 	public TagInfoPhoto readAndDisplayMetadata(final File file) throws ImageReadException, IOException {
+
 		// get all metadata stored in EXIF format (ie. from JPEG or TIFF).
 		TagInfoPhoto tagInfoPhoto = new TagInfoPhoto();
 		tagInfoPhoto.setPath(file.getAbsolutePath());
@@ -28,14 +30,16 @@ public class WoorImageExtractInfo {
 		if (metadata instanceof JpegImageMetadata) {
 			JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
 			String datePrise = getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_DATE_TIME);
-			SimpleDateFormat formatter =new SimpleDateFormat("''yyyy:MM:dd HH:mm:ss''");
+			SimpleDateFormat formatter = new SimpleDateFormat("''yyyy:MM:dd HH:mm:ss''");
 			try {
 				tagInfoPhoto.setDatePrise(formatter.parse(datePrise));
-			} catch (ParseException e) {				
+			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			tagInfoPhoto.setMarqueAppareil(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE));
-			tagInfoPhoto.setModel(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MODEL));
+			tagInfoPhoto
+					.setMarqueAppareil(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MAKE).replaceAll("'", ""));
+			tagInfoPhoto.setModel(getTagValue(jpegMetadata, TiffTagConstants.TIFF_TAG_MODEL).replaceAll("'", ""));
+			tagInfoPhoto.setFrom(configApplicatif.from(tagInfoPhoto.getModel()));
 			// simple interface to GPS data
 			TiffImageMetadata exifMetadata = jpegMetadata.getExif();
 			if (null != exifMetadata) {

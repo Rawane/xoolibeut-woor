@@ -23,9 +23,6 @@ import org.xoolibeut.woor.organize.photo.spring.TagInfoPhoto;
 import org.xoolibeut.woor.organize.photo.spring.WoorIndexerPhoto;
 import org.xoolibeut.woor.organize.photo.spring.service.PhotoService;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @RestController
 public class WoorPhotoRestController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WoorPhotoRestController.class);
@@ -37,8 +34,6 @@ public class WoorPhotoRestController {
 	private WoorIndexerPhoto woorIndexerPhoto;
 	@Autowired
 	private PhotoService photoService;
-	@Autowired
-	private ObjectMapper mapper;
 
 	@PostConstruct
 	private void init() {
@@ -52,15 +47,7 @@ public class WoorPhotoRestController {
 
 	@RequestMapping(value = "/start", method = RequestMethod.GET)
 	public String demarreIndexation() {
-		TagInfoPhoto tagInfoPhoto = new TagInfoPhoto();
-		tagInfoPhoto.setDatePrise(new Date());
-		try {
-			System.out.println(mapper.writeValueAsString(tagInfoPhoto));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		LOGGER.info("CRON", dateFormat.format(new Date()));
+		LOGGER.info("demarreIndexation ", dateFormat.format(new Date()));
 		taskArrangePhoto.arrangePhoto((path) -> {
 			LOGGER.info(path.toString());
 			woorIndexerPhoto.indexerPhoto(path);
@@ -69,7 +56,7 @@ public class WoorPhotoRestController {
 	}
 
 	@RequestMapping("/search/marque/{marque}/{pageStart}/{pageEnd}")
-	public Page<TagInfoPhoto> search(@PathVariable String marque, @PathVariable Integer pageStart,
+	public Page<TagInfoPhoto> searchMarque(@PathVariable String marque, @PathVariable Integer pageStart,
 			@PathVariable Integer pageEnd) {
 		LOGGER.info("search");
 		return photoService.findByMarqueAppareil(marque, pageStart, pageEnd);
@@ -83,27 +70,20 @@ public class WoorPhotoRestController {
 
 	}
 
-	@RequestMapping("/search/{dateStart}/{dateEnd}/{pageStart}/{pageEnd}")
-	public Page<TagInfoPhoto> searchByDatePriseB(@PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date dateStart, @PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date dateEnd,
-			@PathVariable int pageStart, @PathVariable int pageEnd) {
-		LOGGER.info("search");
-		return photoService.findByDatePriseBetween(dateStart, dateEnd, pageStart, pageEnd);
-	}
-
-	@RequestMapping("/search/b/{dateStart}/{dateEnd}/{pageStart}/{pageEnd}")
-	public Page<TagInfoPhoto> searchByDatePriseB2(
+	@RequestMapping("/search/date/{dateStart}/{dateEnd}/{pageStart}/{pageEnd}")
+	public Page<TagInfoPhoto> searchByDatePrise(
 			@PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date dateStart,
 			@PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date dateEnd, @PathVariable int pageStart,
 			@PathVariable int pageEnd) {
-		LOGGER.info("search");
-		return photoService.findByDatePriseBetween2(dateStart, dateEnd, pageStart, pageEnd);
+		LOGGER.info("searchByDatePrise date debut  " + dateStart + " date fin " + dateEnd);
+		return photoService.findByDatePriseBetween(dateStart, dateEnd, pageStart, pageEnd);
+
 	}
 
 	@RequestMapping("/search/date/{date}")
 	public Page<TagInfoPhoto> searchByDatePriseF(
 			@PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date date) {
-
-		LOGGER.info("searchByDatePriseF ");
+		LOGGER.info("searchByDatePriseF  date " + date);
 		return photoService.findByDatePrise(date, 0, 10);
 
 	}
@@ -111,21 +91,16 @@ public class WoorPhotoRestController {
 	@RequestMapping("/search/path/{path}/{pageStart}/{pageEnd}")
 	public Page<TagInfoPhoto> searchByPathContaining(@PathVariable String path, @PathVariable Integer pageStart,
 			@PathVariable Integer pageEnd) {
-
 		LOGGER.info("searchByPath " + path);
 		return photoService.findByPathContaining(path, pageStart, pageEnd);
 
 	}
 
-	@RequestMapping("/search/date/cont/{datePrise}/{pageStart}/{pageEnd}")
-	public Page<TagInfoPhoto> searchByDatePriseContaining(
-			@PathVariable @DateTimeFormat(pattern = "yyyy:MM:dd HH:mm:ss") Date datePrise,
-			@PathVariable Integer pageStart, @PathVariable Integer pageEnd) {
-
-		LOGGER.info("searchByDatePriseContaining " + datePrise);
-
-		return photoService.findByDatePriseContaining(datePrise, pageStart, pageEnd);
+	@RequestMapping("/search/{search}/{pageStart}/{pageEnd}")
+	public Page<TagInfoPhoto> search(@PathVariable String search, @PathVariable Integer pageStart,
+			@PathVariable Integer pageEnd) {
+		LOGGER.info("searchByPath " + search);
+		return photoService.searchMultiple(search, pageStart, pageEnd);
 
 	}
-
 }
