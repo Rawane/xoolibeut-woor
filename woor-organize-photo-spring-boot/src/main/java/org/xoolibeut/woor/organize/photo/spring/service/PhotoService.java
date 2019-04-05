@@ -49,10 +49,13 @@ public class PhotoService {
 		Page<TagInfoPhoto> pagePhoto = photoRepository.findByPathContaining(path, PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}
-
+	public Page<TagInfoPhoto> findByLieuPrisePhoto(String ligneAdresse, int pageStart, int pageEnd) {
+		Page<TagInfoPhoto> pagePhoto = photoRepository.findByLigneAdresseContaining(ligneAdresse, PageRequest.of(pageStart, pageEnd));
+		return pagePhoto;
+	}	
 	public Page<TagInfoPhoto> searchMultiple(String search, int pageStart, int pageEnd) {
 		QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery(search).field("path").field("marqueAppareil")
-				.field("model").type(MultiMatchQueryBuilder.Type.BEST_FIELDS);
+				.field("model").field("ligneAdresse").field("from").type(MultiMatchQueryBuilder.Type.BEST_FIELDS);
 		Page<TagInfoPhoto> pagePhoto = photoRepository.search(queryBuilder, PageRequest.of(pageStart, pageEnd));
 		return pagePhoto;
 	}

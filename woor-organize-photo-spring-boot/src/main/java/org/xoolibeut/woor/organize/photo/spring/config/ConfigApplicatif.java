@@ -1,8 +1,10 @@
 package org.xoolibeut.woor.organize.photo.spring.config;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 
@@ -35,11 +37,18 @@ public class ConfigApplicatif {
 				JsonNode json = mapper.readTree(mappingResourceFile.getFile());
 				System.out.println(json);				
 				JsonNode jsonArr = json.get("from");
+				configBean.from=new HashMap<>();
+				for(JsonNode jsonEnt : jsonArr){
+					String key = jsonEnt.fieldNames().next();
+					configBean.from.put(key,jsonEnt.get(key).textValue());
+					
+				}
 				if(jsonArr!=null) {
-					Iterator<String> fieldNames = jsonArr.fieldNames();
-					while(fieldNames.hasNext()) {
-						String key=fieldNames.next();
-						configBean.from.put(key, jsonArr.get(key).toString());
+					 Iterator<Entry<String, JsonNode>> fields = jsonArr.fields();
+					while(fields.hasNext()) {
+						 Entry<String, JsonNode> jsonEnt = fields.next();
+						 System.out.println(jsonEnt.getKey());
+						 System.out.println(jsonEnt.getValue().toString());
 					}
 					
 				}

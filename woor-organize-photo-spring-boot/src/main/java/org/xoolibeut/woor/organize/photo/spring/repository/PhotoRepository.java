@@ -13,5 +13,7 @@ public interface PhotoRepository extends ElasticsearchRepository<TagInfoPhoto, S
 	 Page<TagInfoPhoto> findByDatePrise(Date datePrise, Pageable pageable);
 	 Page<TagInfoPhoto> findByPathContaining(String path, Pageable pageable);
 	 Page<TagInfoPhoto> findByDatePriseContaining(Date datePrise, Pageable pageable);	 
+	 Page<TagInfoPhoto> findByLigneAdresseContaining(String ligneAdresse, Pageable pageable);	
+	 Page<TagInfoPhoto> findByFromContaining(String from, Pageable pageable);	 
 	 
 }

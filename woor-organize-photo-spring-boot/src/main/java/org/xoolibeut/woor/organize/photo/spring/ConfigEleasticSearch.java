@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "org.xoolibeut.woor.organize.photo.spring.repository")
 public class ConfigEleasticSearch {
-	@Value("${elasticsearch.home:D:\\devs\\elasticsearch-6.6.1\\data}")
+	@Value("${elasticsearch.home:C:\\devs\\elasticsearch-6.6.1\\data}")
 	private String elasticsearchHome;
 
 	@Value("${elasticsearch.cluster.name:woor-elasticsearch}")
@@ -30,7 +30,7 @@ public class ConfigEleasticSearch {
 				.put("path.home", elasticsearchHome).put("cluster.name", clusterName).build();
 		TransportClient client = new PreBuiltTransportClient(elasticsearchSettings);
 		try {
-			client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+			client.addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

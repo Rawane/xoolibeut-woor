@@ -30,6 +30,7 @@ public class TagInfoPhoto {
 	private Double latitude;
 	private Double longitude;
 	private String from;
+	private String ligneAdresse;	
 	@Id
 	private String path;
 
@@ -44,6 +45,14 @@ public class TagInfoPhoto {
 			exception.printStackTrace();
 		}
 		return this.toString();
+	}
+
+	public String getLigneAdresse() {
+		return ligneAdresse;
+	}
+
+	public void setLigneAdresse(String ligneAdresse) {
+		this.ligneAdresse = ligneAdresse;
 	}
 
 	public String getMarqueAppareil() {
